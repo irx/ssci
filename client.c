@@ -104,7 +104,7 @@ client_send(const Conn *conn, const char *msg, const unsigned int len)
 }
 
 void
-client_bind(Conn *conn, int event, const void *fn)
+client_bind(Conn *conn, int event, const void *fn(void))
 {
 	switch (event) {
 	case ON_MESSG:

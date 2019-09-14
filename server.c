@@ -195,7 +195,7 @@ void server_broadcast(const Server *serv, const char *msg, const unsigned int le
 }
 
 void
-server_bind(Server *serv, int event, const void *fn)
+server_bind(Server *serv, int event, const void *fn(void))
 {
 	switch (event) {
 	case ON_MESSG:

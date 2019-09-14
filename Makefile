@@ -1,5 +1,7 @@
 CC = cc
-CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations
+CFLAGS = -std=c99 -pedantic -Wall \
+	 -Wno-deprecated-declarations \
+	 -Wno-incompatible-function-pointer-types
 
 OBJ = server.o client.o
 
