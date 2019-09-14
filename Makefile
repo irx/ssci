@@ -1,3 +1,5 @@
+.PHONY: clean
+
 CC = cc
 CFLAGS = -std=c99 -pedantic -Wall \
 	 -Wno-deprecated-declarations \
@@ -11,3 +13,6 @@ libssci.a: ${OBJ}
 .c.o:
 	@echo CC $<
 	@${CC} -c ${CFLAGS} $<
+
+clean:
+	rm -rf libssci.a ${OBJ}
