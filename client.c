@@ -37,7 +37,7 @@ client_dial(const char *saddr, const unsigned int port)
 	static socklen_t slen = (socklen_t)sizeof(struct sockaddr_in);
 
 	Conn *conn = (Conn *)calloc(1, sizeof(Conn));
-	if (conn < 0)
+	if (!conn)
 		return conn;
 	conn->on_messg = NULL;
 	conn->on_close = NULL;

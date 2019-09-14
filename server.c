@@ -45,7 +45,7 @@ server_open(unsigned int slot_lim, const unsigned int port)
 	static socklen_t slen = (socklen_t)sizeof(struct sockaddr_in);
 
 	Server *serv = (Server *)malloc(sizeof(Server));
-	if (serv < 0)
+	if (!serv)
 		return serv;
 	serv->on_messg = NULL;
 	serv->on_close = NULL;
@@ -54,18 +54,18 @@ server_open(unsigned int slot_lim, const unsigned int port)
 	serv->limit = slot_lim;
 
 	serv->slots = (Slot *)malloc(sizeof(Slot)*slot_lim);
-	if (serv->slots < 0) {
+	if (!serv->slots) {
 		free(serv);
 		return NULL;
 	}
 	serv->pfd = (struct pollfd *)calloc(1, sizeof(struct pollfd)*slot_lim);
-	if (serv->pfd < 0) {
+	if (!serv->pfd) {
 		free(serv->slots);
 		free(serv);
 		return NULL;
 	}
 	serv->addr = (struct sockaddr_in *)calloc(1, sizeof(struct sockaddr_in)*slot_lim);
-	if (serv->pfd < 0) {
+	if (!serv->addr) {
 		free(serv->pfd);
 		free(serv->slots);
 		free(serv);
