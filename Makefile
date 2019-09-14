@@ -5,7 +5,7 @@ CFLAGS = -std=c99 -pedantic -Wall \
 
 OBJ = server.o client.o
 
-ssci.a: ${OBJ}
+libssci.a: ${OBJ}
 	@echo AR $@
 	ar -rc $@ ${OBJ}
 .c.o:
