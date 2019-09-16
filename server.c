@@ -182,7 +182,7 @@ server_send(const Server *serv, const unsigned int clino, const char *msg, const
 		perror("Message too long");
 		return;
 	}
-	send(serv->pfd[clino].fd, msg, len, 0);
+	send(serv->pfd[clino].fd, msg, len, MSG_NOSIGNAL);
 }
 
 void server_broadcast(const Server *serv, const char *msg, const unsigned int len)
