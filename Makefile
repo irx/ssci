@@ -23,7 +23,7 @@ example-server: example-server.o server.o
 	@echo LD $@
 	@${CC} -o $@ example-server.o server.o
 
-example-client: example-client.o server.o
+example-client: example-client.o client.o
 	@echo LD $@
 	@${CC} -o $@ example-client.o client.o
 
