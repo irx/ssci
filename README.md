@@ -1,0 +1,96 @@
+Somewhat simple communication interface
+=======================================
+
+This is a simple sockets library.
+It provides a minimal interface for continuous message (plain char/byte strings)
+exchange between [multiple] clients and a single server.
+
+The functionality of this library revolves around two structs;
+namely `Server` and `Conn` (client) which can be thought of as objects since
+they both serve as context to their respective 'methods'.
+
+
+## Usage
+
+Creating a server and opening socket on specific port is both done by:
+
+```c
+Server * server_open(unsigned int number_of_slots, unsigned int port);
+```
+
+So to open socket and start listening:
+
+```c
+Server *s = server_open(32, 8080);
+
+if (!s)
+	/* Handle failure */
+
+while (1)
+	server_poll(s, -1);
+```
+
+But that would be rather useless unless we handle incoming messages.
+
+Consider following callback function:
+
+```c
+void
+respond(Server *s, unsigned int clino, char *msg, unsigned int len)
+{
+	printf("Received message from %d: %s\n", clino, msg);
+	server_send(s, clino, "Hello!", 6);
+}
+```
+
+It should display any received message and send back `Hello!`.
+
+The function should be bound to the server before any `server_poll` invocation.
+For this behaviour to apply the function should be bound to the server
+before any `server_poll` invocation.
+
+```c
+server_bind(s, ON_MESSG, &respond);
+```
+
+The client-side procedure is analogous.
+The main difference is the fact that client connects to one server,
+while server has to take care of potential multiple clients.
+
+
+So to connect to the previously created server, send 'Hey!', and
+wait `500ms` for response before closing:
+
+```c
+static void respond(Conn *, char *, unsigned int);
+
+int
+main(void)
+{
+	Conn *c = client_dial("127.0.0.1", 8080);
+
+	if (!c) {
+		fprintf(stderr, "Dial failed\n");
+		return 1;
+	}
+
+	client_bind(c, ON_MESSG, &respond);
+
+	client_send(c, "Hey!", 4);
+	client_poll(c, 100);
+
+	client_close(c);
+
+	return 0;
+}
+
+void
+respond(Conn *c, char *msg, unsigned int len)
+{
+	printf("Received message: %s\n", msg);
+}
+```
+
+---
+
+See `example-server.c` and `example-client.c` for more.
