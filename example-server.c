@@ -7,7 +7,7 @@ static int alive;
 
 /* Print any msg received from clients */
 static void
-on_messg(Server *ctx, unsigned int clino, const char *msg, const unsigned int len)
+on_messg(Server *ctx, unsigned int clino, const char *msg, unsigned int len)
 {
 	printf("Client %d: %s\n", clino, msg);
 	server_broadcast(ctx, msg, len);
@@ -15,7 +15,7 @@ on_messg(Server *ctx, unsigned int clino, const char *msg, const unsigned int le
 
 /* Quit server on entering `q' command or broadcast msg */
 static void
-on_stdin(Server *ctx, const char *msg, const unsigned int len)
+on_stdin(Server *ctx, unsigned int clino, const char *msg, unsigned int len)
 {
 	if (msg[0] == 'q' && msg[1] == '\n')
 		alive = 0;
@@ -33,13 +33,15 @@ main(void)
 		return 1;
 	}
 	/* Bind callback functions to events */
-	server_bind(srv, ON_MESSG, &on_messg);
-	server_bind(srv, ON_STDIN, &on_stdin);
+	server_bind(srv, ON_MESSG, on_messg);
+	server_bind(srv, ON_STDIN, on_stdin);
 
 	/* Listen */
 	alive = 1;
 	while (alive)
 		server_poll(srv, -1);
+
+	server_close(srv);
 
 	return 0;
 }

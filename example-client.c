@@ -3,23 +3,23 @@
 
 /* report every msg received from server */
 void
-on_messg(Conn *cli, const char *msg, const unsigned int len)
+on_messg(const Conn *cli, const char *msg, unsigned int len)
 {
 	printf("Message from server: %s\n", msg);
 }
 
 /* Send text from std input */
 void
-on_stdin(Conn *ctx, const char *msg, const unsigned int len)
+on_stdin(const Conn *ctx, const char *msg, unsigned int len)
 {
-	client_send(ctx, msg, len);
+	client_send((Conn *)ctx, msg, len);
 }
 
 /* Report status on closed connexion */
 void
-status(Conn *cli)
+status(const Conn *cli, const char *msg, unsigned int len)
 {
-	printf("Check if client is alive: %d\n", client_alive(cli));
+	printf("Check if client is alive: %d\n", client_alive((Conn *)cli));
 }
 
 int
@@ -31,11 +31,11 @@ main(void)
 		return 1;
 
 	/* Bind callback functions to events */
-	client_bind(cli, ON_MESSG, &on_messg);
-	client_bind(cli, ON_STDIN, &on_stdin);
-	client_bind(cli, ON_CLOSE, &status);
+	client_bind(cli, ON_MESSG, on_messg);
+	client_bind(cli, ON_STDIN, on_stdin);
+	client_bind(cli, ON_CLOSE, status);
 
-	status(cli);
+	status(cli, NULL, 0);
 
 	/* Greet the server and wait for response */
 	client_send(cli, "Hello", 5);

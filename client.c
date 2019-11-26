@@ -26,9 +26,9 @@ typedef struct Conn Conn;
 struct Conn {
 	struct sockaddr_in addr;
 	struct pollfd pfd[2];
-	void (*on_messg)(const Conn *, const char *, const unsigned int);
-	void (*on_close)(const Conn *);
-	void (*on_stdin)(const Conn *, const char *, const unsigned int);
+	void (*on_messg)(const Conn *, const char *, unsigned int);
+	void (*on_close)(const Conn *, const char *, unsigned int);
+	void (*on_stdin)(const Conn *, const char *, unsigned int);
 };
 
 Conn *
@@ -87,7 +87,7 @@ client_poll(Conn *conn, int timeout)
 			perror("Lost connexion with server");
 			conn->pfd[1].fd = -1;
 			if (conn->on_close != NULL)
-				(*conn->on_close)(conn);
+				(*conn->on_close)(conn, NULL, 0);
 		}
 	}
 }
@@ -104,7 +104,7 @@ client_send(const Conn *conn, const char *msg, const unsigned int len)
 }
 
 void
-client_bind(Conn *conn, int event, const void *fn(void))
+client_bind(Conn *conn, int event, void (*fn)(const Conn *, const char *, unsigned int))
 {
 	switch (event) {
 	case ON_MESSG:

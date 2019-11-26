@@ -33,9 +33,9 @@ struct Server {
 	Slot *slots;
 	struct pollfd *pfd;
 	struct sockaddr_in *addr;
-	void (*on_messg)(Server *, const unsigned int, const char *, const unsigned int);
-	void (*on_close)(Server *, const unsigned int);
-	void (*on_stdin)(Server *, const char *, const unsigned int);
+	void (*on_messg)(Server *, unsigned int, const char *, unsigned int);
+	void (*on_close)(Server *, unsigned int, const char *, unsigned int);
+	void (*on_stdin)(Server *, unsigned int, const char *, unsigned int);
 };
 
 Server *
@@ -115,7 +115,7 @@ server_abort(Server *serv, const unsigned int clino)
 	serv->slots[clino].occupied = 0;
 	serv->pfd[clino].fd = -1;
 	if (serv->on_close != NULL)
-		(*serv->on_close)(serv, clino);
+		(*serv->on_close)(serv, clino, NULL, 0);
 }
 
 void
@@ -127,7 +127,7 @@ server_poll(Server *serv, int timeout)
 		static char buf[1024]; // tmp
 		bzero((void *)buf, 1024);
 		read(serv->pfd[0].fd, buf, 1024);
-		(*serv->on_stdin)(serv, buf, 1024);
+		(*serv->on_stdin)(serv, fileno(stdin), buf, 1024);
 		// TODO handle stdin
 	}
 	if (serv->pfd[1].revents & POLLIN) {
@@ -157,7 +157,7 @@ server_poll(Server *serv, int timeout)
 				serv->slots[clino].occupied = 0;
 				serv->pfd[clino].fd = -1;
 				if (serv->on_close != NULL)
-					(*serv->on_close)(serv, clino);
+					(*serv->on_close)(serv, clino, NULL, 0);
 			} else if (r < 0) {
 				perror("Unexpected response");
 				/* What do I do? */
@@ -195,7 +195,7 @@ void server_broadcast(const Server *serv, const char *msg, const unsigned int le
 }
 
 void
-server_bind(Server *serv, int event, const void *fn(void))
+server_bind(Server *serv, int event, void (*fn)(Server *, unsigned int, const char *, unsigned int))
 {
 	switch (event) {
 	case ON_MESSG:

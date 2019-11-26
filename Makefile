@@ -2,22 +2,22 @@
 
 CC = cc
 CFLAGS = -std=c99 -pedantic -Wall \
-	 -Wno-deprecated-declarations \
-	 -Wno-incompatible-function-pointer-types
+	 -Wno-deprecated-declarations
 
 OBJ = server.o client.o
+HDR = sscilib.h
 
 all: libssci.a examples
 
 libssci.a: ${OBJ}
 	@echo AR $@
 	@ar -rc $@ ${OBJ}
-.c.o:
+.c.o: ${HDR}
 	@echo CC $<
 	@${CC} -c ${CFLAGS} $<
 
 clean:
-	rm -f libssci.a example-server example-client *.o
+	rm libssci.a example-server example-client *.o
 
 example-server: example-server.o server.o
 	@echo LD $@
