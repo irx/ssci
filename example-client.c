@@ -3,23 +3,23 @@
 
 /* report every msg received from server */
 void
-on_messg(const Conn *cli, const char *msg, unsigned int len)
+on_messg(Conn *cli, const char *msg, unsigned int len)
 {
 	printf("Message from server: %s\n", msg);
 }
 
 /* Send text from std input */
 void
-on_stdin(const Conn *ctx, const char *msg, unsigned int len)
+on_stdin(Conn *ctx, const char *msg, unsigned int len)
 {
-	client_send((Conn *)ctx, msg, len);
+	client_send(ctx, msg, len);
 }
 
 /* Report status on closed connexion */
 void
-status(const Conn *cli, const char *msg, unsigned int len)
+status(Conn *cli, const char *msg, unsigned int len)
 {
-	printf("Check if client is alive: %d\n", client_alive((Conn *)cli));
+	printf("Check if client is alive: %d\n", client_alive(cli));
 }
 
 int

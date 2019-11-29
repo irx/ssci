@@ -39,7 +39,7 @@ struct Server {
 };
 
 Server *
-server_open(unsigned int slot_lim, const unsigned int port)
+server_open(unsigned int slot_lim, unsigned int port)
 {
 	const int ok = 1;
 	static socklen_t slen = (socklen_t)sizeof(struct sockaddr_in);
@@ -107,7 +107,7 @@ server_open(unsigned int slot_lim, const unsigned int port)
 }
 
 void
-server_abort(Server *serv, const unsigned int clino)
+server_abort(Server *serv, unsigned int clino)
 {
 	if (clino > serv->limit || !serv->slots[clino].occupied)
 		return;
@@ -172,7 +172,7 @@ server_poll(Server *serv, int timeout)
 }
 
 void
-server_send(const Server *serv, const unsigned int clino, const char *msg, const unsigned int len)
+server_send(Server *serv, unsigned int clino, const char *msg, unsigned int len)
 {
 	if (clino > serv->limit || !serv->slots[clino].occupied) {
 		perror("No client on given socket");
@@ -185,7 +185,7 @@ server_send(const Server *serv, const unsigned int clino, const char *msg, const
 	send(serv->pfd[clino].fd, msg, len, MSG_NOSIGNAL);
 }
 
-void server_broadcast(const Server *serv, const char *msg, const unsigned int len)
+void server_broadcast(Server *serv, const char *msg, unsigned int len)
 {
 	int clino;
 	for (clino=2; clino < serv->limit; ++clino) {

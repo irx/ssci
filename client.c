@@ -26,13 +26,13 @@ typedef struct Conn Conn;
 struct Conn {
 	struct sockaddr_in addr;
 	struct pollfd pfd[2];
-	void (*on_messg)(const Conn *, const char *, unsigned int);
-	void (*on_close)(const Conn *, const char *, unsigned int);
-	void (*on_stdin)(const Conn *, const char *, unsigned int);
+	void (*on_messg)(Conn *, const char *, unsigned int);
+	void (*on_close)(Conn *, const char *, unsigned int);
+	void (*on_stdin)(Conn *, const char *, unsigned int);
 };
 
 Conn *
-client_dial(const char *saddr, const unsigned int port)
+client_dial(const char *saddr, unsigned int port)
 {
 	static socklen_t slen = (socklen_t)sizeof(struct sockaddr_in);
 
@@ -93,7 +93,7 @@ client_poll(Conn *conn, int timeout)
 }
 
 void
-client_send(const Conn *conn, const char *msg, const unsigned int len)
+client_send(Conn *conn, const char *msg, unsigned int len)
 {
 	// TODO maybe some checks
 	if (len > 1024) {
@@ -104,7 +104,7 @@ client_send(const Conn *conn, const char *msg, const unsigned int len)
 }
 
 void
-client_bind(Conn *conn, int event, void (*fn)(const Conn *, const char *, unsigned int))
+client_bind(Conn *conn, int event, void (*fn)(Conn *, const char *, unsigned int))
 {
 	switch (event) {
 	case ON_MESSG:
