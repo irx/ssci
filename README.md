@@ -26,7 +26,7 @@ Server *s = server_open(32, 8080);
 if (!s)
 	/* Handle failure */
 
-while (1)
+for (;;)
 	server_poll(s, -1);
 ```
 
@@ -45,9 +45,7 @@ respond(Server *s, unsigned int clino, char *msg, unsigned int len)
 
 It should display any received message and send back `Hello!`.
 
-The function should be bound to the server before any `server_poll` invocation.
-For this behaviour to apply the function should be bound to the server
-before any `server_poll` invocation.
+Such function should be bound to the server before any `server_poll` invocation.
 
 ```c
 server_bind(s, ON_MESSG, &respond);
@@ -77,7 +75,7 @@ main(void)
 	client_bind(c, ON_MESSG, &respond);
 
 	client_send(c, "Hey!", 4);
-	client_poll(c, 100);
+	client_poll(c, 500);
 
 	client_close(c);
 
@@ -93,4 +91,4 @@ respond(Conn *c, char *msg, unsigned int len)
 
 ---
 
-See `example-server.c` and `example-client.c` for more.
+See `example-server.c`, `example-client.c` and `example-http.c` for more.

@@ -17,7 +17,7 @@ libssci.a: ${OBJ}
 	@${CC} -c ${CFLAGS} $<
 
 clean:
-	rm libssci.a example-server example-client *.o
+	rm libssci.a example-server example-client example-http *.o
 
 example-server: example-server.o server.o
 	@echo LD $@
@@ -27,4 +27,8 @@ example-client: example-client.o client.o
 	@echo LD $@
 	@${CC} -o $@ example-client.o client.o
 
-examples: example-server example-client
+example-http: example-http.o server.o
+	@echo LD $@
+	@${CC} -o $@ example-http.o server.o
+
+examples: example-server example-client example-http
