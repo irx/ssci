@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2019-2022  Maksymilian Mruszczak <u at one u x dot o r g>
+ * Simple libssci example
+ *
+ * Every msg received by this server will be echoed to all clients
+ * Type `q' in stdin to shutdown server
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,6 +18,7 @@ static void
 on_messg(Server *ctx, unsigned int clino, const char *msg, unsigned int len)
 {
 	printf("Client %d: %s\n", clino, msg);
+	fflush(stdout);
 	server_broadcast(ctx, msg, len);
 }
 
