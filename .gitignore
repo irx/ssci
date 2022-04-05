@@ -1,0 +1,6 @@
+*.o
+*.swp
+example-client
+example-http
+example-server
+libssci.a

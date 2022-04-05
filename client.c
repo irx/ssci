@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019  Maksymilian Mruszczak <u at one u x dot o r g>
+ * Copyright (c) 2019-2022  Maksymilian Mruszczak <u at one u x dot o r g>
  *
  * Simplified sockets client-side API implementation
  */
@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <string.h>
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -72,15 +73,15 @@ client_poll(Conn *conn, int timeout)
 {
 	poll(conn->pfd, 2, timeout);
 	if ((conn->pfd[0].revents & POLLIN) && conn->on_stdin != NULL) {
-		static char buf[1024]; // tmp
-		bzero((void *)buf, 1024);
+		static char buf[1024]; // TODO read whole msg
+		memset((void *)buf, 0, sizeof(char)*1024);
 		read(conn->pfd[0].fd, buf, 1024);
 		(*conn->on_stdin)(conn, buf, 1024);
 		// TODO handle stdin
 	}
 	if ((conn->pfd[1].revents & POLLIN) && conn->on_messg != NULL) {
-		static char buf[1024]; // tmp
-		bzero((void *)buf, 1024);
+		static char buf[1024]; // TODO read whole msg
+		memset((void *)buf, 0, sizeof(char)*1024);
 		if (recv(conn->pfd[1].fd, buf, 1024, 0))
 			(*conn->on_messg)(conn, buf, 1024);
 		else {
@@ -118,7 +119,7 @@ client_bind(Conn *conn, int event, void (*fn)(Conn *, const char *, unsigned int
 		if (fn == NULL)
 			conn->pfd[0].fd = -1;
 		else
-			conn->pfd[0].fd = fileno(stdin);
+			conn->pfd[0].fd = STDIN_FILENO;
 		break;
 	}
 }
@@ -127,7 +128,7 @@ void
 client_close(Conn *conn)
 {
 	close(conn->pfd[1].fd);
-	bzero((void *)conn, sizeof(Conn));
+	memset((void *)conn, 0, sizeof(Conn));
 	free(conn);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019  Maksymilian Mruszczak <u at one u x dot o r g>
+ * Copyright (c) 2019-2022  Maksymilian Mruszczak <u at one u x dot o r g>
  *
  * Simplified sockets server-side API implementation
  */
@@ -24,7 +24,6 @@ enum {
 typedef struct {
 	int occupied;
 	size_t pfdno;
-	int idk;
 } Slot;
 
 typedef struct Server Server;
@@ -78,7 +77,7 @@ server_open(unsigned int slot_lim, unsigned int port)
 		serv->slots[i].occupied = 0;
 	}
 
-	serv->pfd[0].fd = fileno(stdin);
+	serv->pfd[0].fd = STDIN_FILENO;
 	serv->pfd[1].fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (serv->pfd[1].fd < 0) {
 		perror("Error creating new conn socket");
@@ -124,10 +123,10 @@ server_poll(Server *serv, int timeout)
 	static size_t clino;
 	poll(serv->pfd, serv->limit, timeout);
 	if ((serv->pfd[0].revents & POLLIN) && serv->on_stdin != NULL) {
-		static char buf[1024]; // tmp
-		bzero((void *)buf, 1024);
+		static char buf[1024]; // TODO read whole buf? pass fd instead of reading?
+		memset((void *)buf, 0, sizeof(char)*1024);
 		read(serv->pfd[0].fd, buf, 1024);
-		(*serv->on_stdin)(serv, fileno(stdin), buf, 1024);
+		(*serv->on_stdin)(serv, STDIN_FILENO, buf, 1024);
 		// TODO handle stdin
 	}
 	if (serv->pfd[1].revents & POLLIN) {
@@ -149,8 +148,8 @@ server_poll(Server *serv, int timeout)
 	}
 	for (clino=2; clino < serv->limit; ++clino) {
 		if (serv->pfd[clino].revents & POLLIN) {
-			char buf[256]; // tmp
-			bzero((void *)buf, sizeof(char)*256);
+			char buf[256]; // TODO properly handle longer messages
+			memset((void *)buf, 0, sizeof(char)*256);
 			int r = recv(serv->pfd[clino].fd, buf, 256, 0);
 			if (r == 0) {
 				close(serv->pfd[clino].fd);
@@ -216,8 +215,8 @@ server_close(Server *serv)
 	for (int i=1; i < serv->limit; ++i)
 		if (serv->pfd[i].fd >= 0)
 			close(serv->pfd[i].fd);
-	bzero((void *)serv->addr, sizeof(serv->addr));
-	bzero((void *)serv->slots, sizeof(serv->slots));
+	memset((void *)serv->addr, 0, sizeof(serv->addr));
+	memset((void *)serv->slots, 0, sizeof(serv->slots));
 	free(serv->addr);
 	free(serv->pfd);
 	free(serv->slots);
